@@ -100,7 +100,7 @@ DEPLOY_PULL_ONLY=1 ./deploy.sh
 El workflow no accede a un servidor remoto: falta elegir hosting y configurar acceso. No hay URL de producción publicada. Para crear cuentas en producción, exportar las variables de la sección Desarrollo y ejecutar:
 
 ```bash
-docker compose run --rm -e ADMIN_EMAIL -e ADMIN_NAME -e ADMIN_PASSWORD -e ADMIN_ROLE backend npm run user:create
+docker compose run --rm -e ADMIN_EMAIL -e ADMIN_NAME -e ADMIN_PASSWORD -e ADMIN_ROLE backend npm run user:create:prod
 unset ADMIN_PASSWORD ADMIN_EMAIL ADMIN_NAME ADMIN_ROLE
 ```
 
@@ -112,6 +112,10 @@ Backups previos en backups/ con acceso restringido. Configurar también copias p
 - SUNAT/proveedor, XML firmado, CDR, series, impuestos, notas de crédito y contingencias. Las ventas actuales son registros comerciales, no comprobantes fiscales; no se simula aceptación SUNAT.
 - Precios escalonados/personalizados, promociones, conversiones de cajas, lotes/vencimientos, devoluciones, anulaciones, pagos a proveedores y conciliación. Resumen actual = cobros y gastos registrados, no utilidad ni saldo bancario.
 - Rate limiting en memoria para una instancia; usar almacén compartido antes de escalar. No se confía automáticamente en cabeceras de proxy enviadas por clientes.
+
+## Dependencias y validación de esta entrega
+
+12 pruebas de integración pasaron con PostgreSQL 17 y la compilación TypeScript pasó. La migración inicial se aplicó y su reejecución no presentó cambios pendientes. `npm audit --omit=dev` reportó cero vulnerabilidades al validar esta entrega. Se fija deepmerge-ts 8 mediante override para corregir el aviso de la dependencia de configuración de Prisma 6; generación, migraciones y pruebas se verificaron con esa versión. Las herramientas de desarrollo de Jest conservan avisos moderados/bajos transitivos y no se incluyen en la imagen de ejecución; revisar sus actualizaciones antes de incorporar código de terceros no confiable en CI.
 
 ## Convenciones
 
