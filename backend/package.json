@@ -3,12 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=24 <25"
+    "node": ">=22.17.1 <23"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "setup": "node scripts/setup.mjs && prisma generate",
+    "build": "prisma generate && tsc -p tsconfig.build.json",
     "start": "node dist/main.js",
-    "dev": "tsx watch src/main.ts",
+    "start:render": "prisma migrate deploy && node dist/main.js",
+    "dev": "tsc -p tsconfig.build.json && node dist/main.js",
+    "start:dev": "node scripts/run-env.mjs development start",
+    "start:staging": "node scripts/run-env.mjs staging start",
+    "start:production": "node scripts/run-env.mjs production start",
+    "migrate:dev": "node scripts/run-env.mjs development migrate",
+    "migrate:staging": "node scripts/run-env.mjs staging migrate",
+    "migrate:production": "node scripts/run-env.mjs production migrate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "user:create": "tsx src/auth/create-user.ts",
@@ -39,7 +47,7 @@
     "@nestjs/testing": "^11.0.0",
     "@types/express": "^5.0.0",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.0.0",
+    "@types/node": "^22.0.0",
     "@types/supertest": "^6.0.0",
     "jest": "^30.0.0",
     "prettier": "^3.6.0",

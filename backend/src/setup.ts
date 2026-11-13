@@ -7,8 +7,9 @@ export function setup(app: INestApplication) {
   app.use(helmet());
   app.use(json({ limit: "100kb" }));
   app.setGlobalPrefix("api/v1");
+  const origins = config.CORS_ORIGIN.split(",").map((u) => u.trim());
   app.enableCors({
-    origin: config.CORS_ORIGIN,
+    origin: origins.length === 1 ? origins[0] : origins,
     methods: ["GET", "POST", "PATCH"],
   });
   app.useGlobalPipes(

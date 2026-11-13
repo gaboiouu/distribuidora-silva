@@ -11,9 +11,9 @@ async function main() {
     const doc = SwaggerModule.createDocument(
       app,
       new DocumentBuilder()
-        .setTitle("Distribuidora Silva API")
+        .setTitle("Distribuciones Silva API")
         .setDescription(
-          "Operaciones comerciales en PEN. No emite comprobantes SUNAT todavía.",
+          "API mayorista en PEN con inventario, ventas, créditos y facturación SUNAT vía Nubefact.",
         )
         .setVersion("1")
         .addBearerAuth()

@@ -10,13 +10,17 @@ import { AccessGuard, AuthModule, Public } from "./auth/auth";
 import { Database, DatabaseModule } from "./common/database";
 import { CatalogModule } from "./catalog/catalog";
 import { OperationsModule } from "./operations/operations.controller";
+import { InventoryModule } from "./inventory/inventory.controller";
+import { UsersModule } from "./users/users";
+import { BillingModule } from "./billing/billing.controller";
+import { config } from "./config";
 @Controller("health")
 class HealthController {
   constructor(private db: Database) {}
   @Public() @Get() async health() {
     try {
       await this.db.$queryRaw`SELECT 1`;
-      return { status: "ok" };
+      return { status: "ok", environment: config.APP_ENV };
     } catch {
       throw new ServiceUnavailableException();
     }
@@ -28,6 +32,9 @@ class HealthController {
     AuthModule,
     CatalogModule,
     OperationsModule,
+    InventoryModule,
+    UsersModule,
+    BillingModule,
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 120 }]),
   ],
   controllers: [HealthController],

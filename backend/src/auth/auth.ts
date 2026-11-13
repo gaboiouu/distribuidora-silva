@@ -3,6 +3,7 @@ import {
   CanActivate,
   Controller,
   ExecutionContext,
+  Get,
   Injectable,
   Module,
   Post,
@@ -118,6 +119,19 @@ export class AuthService {
     });
     return { ok: true };
   }
+  async me(userId: string) {
+    return this.db.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        active: true,
+        createdAt: true,
+      },
+    });
+  }
 }
 @Injectable()
 export class AccessGuard implements CanActivate {
@@ -190,6 +204,9 @@ export class AuthController {
   }
   @ApiBearerAuth() @Post("logout") logout(@Req() req: AuthRequest) {
     return this.service.logout(req.actor.sessionId);
+  }
+  @ApiBearerAuth() @Get("me") me(@Req() req: AuthRequest) {
+    return this.service.me(req.actor.id);
   }
 }
 @Module({

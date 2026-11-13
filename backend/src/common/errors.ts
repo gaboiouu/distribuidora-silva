@@ -25,8 +25,17 @@ export class Errors implements ExceptionFilter {
       };
       [status, message] = mapping[error.code] ?? [500, "Error interno"];
     }
-    if (status === 500)
-      this.logger.error(error instanceof Error ? error.name : "UnknownError");
+    if (status === 500) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        this.logger.error(
+          `PrismaError [${error.code}]: ${error.message} - Meta: ${JSON.stringify(error.meta)}`,
+        );
+      } else if (error instanceof Error) {
+        this.logger.error(`${error.name}: ${error.message}\n${error.stack}`);
+      } else {
+        this.logger.error("UnknownError: " + String(error));
+      }
+    }
     host
       .switchToHttp()
       .getResponse<Response>()
