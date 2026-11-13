@@ -1,122 +1,93 @@
-# Distribuidora Silva
+# Distribuciones Silva
 
-Backend mayorista en Node.js 24 LTS, TypeScript, NestJS 11, PostgreSQL 17 y Prisma 6. Monorepo con `backend/`, `frontend/` e `infra/`. Primera versión del backend; frontend y emisión SUNAT pendientes.
+Sistema integral para el negocio familiar de venta mayorista de chocolates y golosinas (**Distribuciones Silva**). Especializado en la comercialización por **display o caja máster** de productos de alta rotación (Triángulo, variedades de Sublime, multipacks, Morochas, Bon o Bon), permitiendo a los clientes armar pedidos con productos mezclados.
 
-## Funcionalidades
+---
 
-- Inicio de sesión, JWT de 15 minutos, renovación rotativa de 7 días y cierre con revocación inmediata. Contraseñas Argon2id; sin registro público ni credenciales por defecto.
-- Dos permisos: ADMIN administra catálogo, compras y gastos; MEMBER registra clientes, ventas, cobros y entregas. Crear cuentas individuales para conservar quién hizo cada operación.
-- Productos por presentación: una unidad de stock equivale a una caja de esa presentación. Caja pequeña y master se registran como SKU separados; no se convierten existencias automáticamente.
-- Catálogo público con precios, sin costos ni stock interno. Publicación optativa por producto.
-- Proveedores, compras que ingresan stock, ventas que lo descuentan, precios/costos históricos, pagos parciales, cuentas por cobrar, gastos y entregas.
-- Transacciones serializables y restricciones de stock/saldo en PostgreSQL. UUID `requestKey` para reintentar sin duplicar ventas, compras, cobros ni gastos. Reutilizar clave con contenido distinto devuelve 409.
-- Auditoría de productos y operaciones financieras/entregas. Sin borrado de operaciones financieras.
-- Swagger en desarrollo (`/docs`), validación estricta, límites de peticiones, Helmet y CORS explícito.
+## 🏛 Arquitectura del Sistema
 
-## Desarrollo
+El repositorio está organizado como monorepo con backend y frontend desacoplados:
 
-Requisitos: Node.js 24, npm y Docker/Compose. Desde la raíz:
+- **Backend (`/backend`)**:
+  - Runtime: **Node.js 22** (TypeScript, NestJS 11).
+  - Base de datos: **PostgreSQL en Neon** gestionado con **Prisma ORM 6**. Conexión agrupada (*pooler* con PgBouncer) para la aplicación y conexión directa para migraciones.
+  - Autenticación: JWT con rotación de sesiones, contraseñas cifradas con **Argon2id** y control de roles (`ADMIN` y `MEMBER`).
+  - Idempotencia: Soporte de `requestKey` (UUID v4) en ventas, compras, cobros, devoluciones y facturas para evitar registros duplicados por reintentos de red.
+  - Facturación electrónica: Conexión con **Nubefact (Demo)** para emisión de Boletas, Facturas, Notas de Crédito y Guías de Remisión.
+- **Frontend (`/frontend`)**:
+  - SPA construida con **React 18**, **TypeScript**, **Vite** y **Tailwind CSS**.
+  - **Web Pública**: Catálogo mayorista de productos con precios actualizados y generador de pedidos directo a WhatsApp.
+  - **Panel Familiar**: Tablero de gestión con módulos de:
+    - Resumen ejecutivo y ventas del día.
+    - Registro de ventas mayoristas (descuento de inventario, precios negociados, entregas).
+    - Inventario (control de stock, aperturas de cajas máster a displays, ajustes de stock y kardex).
+    - Cuentas por cobrar y abonos parciales.
+    - Compras a proveedores (contado y tarjeta de crédito en cuotas) y gastos operativos.
+    - Devoluciones y anulaciones comerciales.
+    - Facturación electrónica SUNAT (envío a Nubefact, consulta de estado, descarga de PDF oficial, XML firmado y CDR; incluye vista previa de diseño personalizada sin validez tributaria).
+    - Directorio de clientes y proveedores.
+    - Cuentas de usuarios familiares (solo administradores).
+- **Entornos y Ramas de Base de Datos**:
+  - Detallados en [`docs/entornos.md`](docs/entornos.md). Cada entorno (`development`, `staging`, `production`) opera con su propia rama independiente en Neon.
 
+---
+
+## 🚀 Puesta en marcha local
+
+### Requisitos previos
+- Node.js 22+ y npm.
+- Proyecto PostgreSQL en Neon (ramas configuradas para cada entorno).
+
+### 1. Backend (`/backend`)
 ```bash
-docker run -d --name silva-dev-db \
-  -e POSTGRES_USER=silva -e POSTGRES_PASSWORD=test-local-only \
-  -e POSTGRES_DB=silva_test -p 127.0.0.1:5433:5432 postgres:17-alpine
 cd backend
-cp .env.example .env
-npm ci
-npm run db:generate
-```
 
-Configurar JWT_SECRET en `backend/.env` con una cadena aleatoria, por ejemplo generada con `openssl rand -hex 48`. La contraseña del ejemplo es solo para desarrollo local.
+# Configurar variables de entorno (copiar desde .env.example)
+# En Windows PowerShell:
+copy .env.example .env
 
-```bash
+# Configurar en .env: DATABASE_URL, DIRECT_URL, JWT_SECRET, CORS_ORIGIN
+npm install
+npx prisma generate
+
+# Aplicar migraciones pendientes
 npm run db:migrate
+
+# Iniciar servidor en modo desarrollo
 npm run dev
 ```
+El backend estará disponible en `http://localhost:3000/api/v1` (documentación Swagger disponible en `/docs` en desarrollo).
 
-API: `http://localhost:3000/api/v1`. Swagger: `http://localhost:3000/docs`. Salud con consulta real a PostgreSQL: `GET /api/v1/health`.
-
-Crear cuentas desde `backend/` usando variables de entorno sin escribir contraseñas en argumentos:
-
+### 2. Frontend (`/frontend`)
 ```bash
-read -r -p 'Email: ' ADMIN_EMAIL
-read -r -p 'Nombre: ' ADMIN_NAME
-read -r -s -p 'Contraseña (mínimo 14 caracteres): ' ADMIN_PASSWORD
-export ADMIN_EMAIL ADMIN_NAME ADMIN_PASSWORD
-export ADMIN_ROLE=ADMIN # o MEMBER
-npm run user:create
-unset ADMIN_PASSWORD ADMIN_EMAIL ADMIN_NAME ADMIN_ROLE
+cd frontend
+
+# Configurar variables de entorno si es necesario
+# En Windows PowerShell:
+copy .env.example .env
+
+npm install
+npm run dev
 ```
+La aplicación web se ejecutará en `http://localhost:5173`.
 
-No sobrescribe cuentas existentes. Para deshabilitar una cuenta, establecer `User.active=false` mediante administración de base de datos; el guard lo verifica en cada solicitud. La interfaz de usuarios está pendiente.
+---
 
-## Flujo de uso
+## 🧪 Pruebas y Validación
 
-Todas las rutas siguientes llevan prefijo `/api/v1`:
+- **Backend**:
+  - Compilación TypeScript: `npm run build` en `backend/`.
+  - Pruebas automatizadas (Jest / Supertest): `npm run test` en `backend/` para validar flujos de facturación, inventario y finanzas en la rama de staging.
+- **Frontend**:
+  - Compilación y verificación de tipos: `npm run build` en `frontend/`.
 
-1. `POST /auth/login`: email y password. Usar `Authorization: Bearer <accessToken>`; en Swagger pulsar Authorize.
-2. Crear producto, proveedor y cliente. Importes como strings de dos decimales, por ejemplo `"35.50"`, en PEN.
-3. `POST /purchases`: requestKey, supplierId, items: [{productId, quantity, unitCost}]. Ingresa stock y actualiza el costo al último de compra.
-4. `POST /sales`: requestKey, customerId, items: [{productId, quantity}], dueAt opcional ISO. Usa precios de catálogo desde el servidor.
-5. `POST /sales/:id/payments`: requestKey, amount, method (CASH, TRANSFER, YAPE, PLIN). Una venta nace pendiente de pago; para contado registrar su cobro completo.
-6. `GET /receivables`: saldo = total - paid. `PATCH /sales/:id/delivery`: PENDING → DISPATCHED → DELIVERED o PENDING → PICKED_UP.
+---
 
-Listados: skip y take (máximo 100). Ante 409 por concurrencia, reintentar con la misma requestKey y espera gradual; conflictos de stock/saldo requieren corregir la operación.
+## 📌 Estado del Proyecto y Próximos Pasos
 
-El futuro frontend mantendrá access tokens en memoria. La integración de renovación mediante cookie HttpOnly y protección CSRF se resolverá con el frontend. Esta API devuelve refresh tokens en el cuerpo para clientes de confianza; no almacenarlos en localStorage por defecto.
-
-## Pruebas
-
-Usar exclusivamente una base dedicada cuyo nombre contenga `silva_test`. Las pruebas crean datos aislados mediante UUID sin borrar datos de otras ejecuciones.
-
-```bash
-cd backend
-npm run db:migrate
-npm run format:check
-npm run build
-npm test
-```
-
-NestJS, Jest, Supertest y PostgreSQL real: autenticación, permisos, validación, privacidad del catálogo, atomicidad, stock concurrente, pagos parciales/concurrentes, idempotencia, entregas y revocación. TypeScript estricto. GitHub Actions ejecuta estas verificaciones y construye Docker.
-
-## Despliegue
-
-Configuración inicial: VPS Linux con Docker/Compose, Python 3, curl y flock; dominio api apuntando al servidor y puertos 80/443 disponibles. Copiar el repo, crear `.env` desde `.env.example`, configurar valores y protegerlo con `chmod 600 .env`. DATABASE_URL debe coincidir con PostgreSQL y usar host `db`. Usar contraseña aleatoria alfanumérica o codificar caracteres especiales en la URL. Configurar `docker login` del registro elegido.
-
-```bash
-./deploy.sh
-# equivalente:
-make deploy
-```
-
-Verifica herramientas/configuración, bloquea ejecuciones simultáneas, construye/publica imagen, inicia PostgreSQL, hace backup, aplica migraciones, inicia API/proxy y verifica HTTPS. API: `https://API_DOMAIN/api/v1`. Caddy gestiona TLS. PostgreSQL no expone puerto al exterior. El frontend todavía no existe y el script lo indica expresamente.
-
-Actions publica la imagen en GHCR con tag SHA después de CI exitoso en main. Configurar BACKEND_IMAGE=ghcr.io/gaboiouu/distribuidora-silva-backend e IMAGE_TAG=<sha-verificado> en el servidor y ejecutar:
-
-```bash
-DEPLOY_PULL_ONLY=1 ./deploy.sh
-```
-
-El workflow no accede a un servidor remoto: falta elegir hosting y configurar acceso. No hay URL de producción publicada. Para crear cuentas en producción, exportar las variables de la sección Desarrollo y ejecutar:
-
-```bash
-docker compose run --rm -e ADMIN_EMAIL -e ADMIN_NAME -e ADMIN_PASSWORD -e ADMIN_ROLE backend npm run user:create:prod
-unset ADMIN_PASSWORD ADMIN_EMAIL ADMIN_NAME ADMIN_ROLE
-```
-
-Backups previos en backups/ con acceso restringido. Configurar también copias periódicas fuera del servidor, retención y pruebas de restauración antes de uso real. No hay rollback automático del esquema: usar migraciones compatibles hacia adelante. Para revertir aplicación, seleccionar tag anterior y ejecutar modo pull comprobando compatibilidad. El despliegue de una instancia puede interrumpir brevemente el servicio.
-
-## Pendiente
-
-- Frontend interno y web pública con URLs, imágenes, búsqueda y contacto WhatsApp.
-- SUNAT/proveedor, XML firmado, CDR, series, impuestos, notas de crédito y contingencias. Las ventas actuales son registros comerciales, no comprobantes fiscales; no se simula aceptación SUNAT.
-- Precios escalonados/personalizados, promociones, conversiones de cajas, lotes/vencimientos, devoluciones, anulaciones, pagos a proveedores y conciliación. Resumen actual = cobros y gastos registrados, no utilidad ni saldo bancario.
-- Rate limiting en memoria para una instancia; usar almacén compartido antes de escalar. No se confía automáticamente en cabeceras de proxy enviadas por clientes.
-
-## Dependencias y validación de esta entrega
-
-12 pruebas de integración pasaron con PostgreSQL 17 y la compilación TypeScript pasó. La migración inicial se aplicó y su reejecución no presentó cambios pendientes. `npm audit --omit=dev` reportó cero vulnerabilidades al validar esta entrega. Se fija deepmerge-ts 8 mediante override para corregir el aviso de la dependencia de configuración de Prisma 6; generación, migraciones y pruebas se verificaron con esa versión. Las herramientas de desarrollo de Jest conservan avisos moderados/bajos transitivos y no se incluyen en la imagen de ejecución; revisar sus actualizaciones antes de incorporar código de terceros no confiable en CI.
-
-## Convenciones
-
-Conventional Commits: feat(auth), fix(inventory), test(sales), ci. Nunca versionar .env, respaldos, contraseñas, certificados ni claves SOL. Revisar CI antes de integrar cambios a main.
+- [x] Backend completo con ventas mixtas, cajas máster, compras en cuotas, abonos y devoluciones.
+- [x] Frontend completo conectado con catálogo público y panel familiar de administración.
+- [x] Migraciones y configuración multi-entorno de Neon (desarrollo, staging y producción).
+- [x] Integración de facturación electrónica con Nubefact Demo.
+- [ ] Validación final de respuesta de comprobantes en Nubefact antes de paso a producción.
+- [ ] Contenedorización con Docker y automatización de despliegue continuo (CI/CD) para el cierre del proyecto.
