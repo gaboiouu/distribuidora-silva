@@ -36,11 +36,11 @@ export const PublicCatalogView: React.FC = () => {
   const companyName =
     import.meta.env.VITE_COMPANY_NAME || "Distribuciones Silva";
   const whatsappNumber =
-    import.meta.env.VITE_WHATSAPP_NUMBER || "51999999999";
+    import.meta.env.VITE_WHATSAPP_NUMBER || "51933070052";
   const phoneDisplay =
-    import.meta.env.VITE_PHONE_DISPLAY || "999 999 999";
+    import.meta.env.VITE_PHONE_DISPLAY || "933 070 052";
   const address =
-    import.meta.env.VITE_ADDRESS || "Mercado Mayorista / Almacén Central";
+    import.meta.env.VITE_ADDRESS || "Almacén El Progreso";
 
   useEffect(() => {
     void (async () => {
