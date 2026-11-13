@@ -1,0 +1,210 @@
+.silva-panel {
+  --silva-navy: #15243d;
+  --silva-copper: #a96643;
+  --silva-cocoa: #8b4d31;
+  --silva-border: #e6d9cd;
+  color: var(--silva-navy);
+  background: #f7f3ee;
+}
+
+.silva-panel .silva-sidebar {
+  background: linear-gradient(165deg, #1b2d4c, #101c31);
+}
+
+.silva-panel .silva-sidebar-brand {
+  border-bottom: 1px solid rgba(255, 255, 255, .16);
+}
+
+.silva-panel .silva-sidebar-logo {
+  position: relative;
+  width: 100%;
+}
+
+.silva-panel .silva-sidebar-logo-white {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  -webkit-mask-image: url("/silva-logo-products.png");
+  mask-image: url("/silva-logo-products.png");
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  clip-path: inset(0 0 0 38%);
+  pointer-events: none;
+}
+
+.silva-panel main h1,
+.silva-panel main h2,
+.silva-panel main h3 {
+  color: var(--silva-navy);
+  letter-spacing: -.025em;
+}
+
+.silva-panel main > div > div:first-child:has(h2) {
+  border-left: 4px solid var(--silva-copper);
+  background: #fffdfb;
+  padding: 1.5rem;
+}
+
+.silva-panel main > div > div:first-child h2 {
+  font-size: clamp(1.6rem, 2vw, 2.15rem);
+  line-height: 1.15;
+}
+
+.silva-panel main > div > div:first-child h2 + p {
+  margin-top: .4rem;
+  font-size: .925rem;
+  line-height: 1.5;
+}
+
+.silva-panel main .text-xs {
+  font-size: .8125rem;
+}
+
+.silva-panel main .border-slate-200 {
+  border-color: var(--silva-border);
+}
+
+.silva-panel main .shadow-sm {
+  box-shadow: 0 3px 14px rgba(35, 28, 24, .055);
+}
+
+.silva-panel main .bg-brand-600,
+.silva-panel main .bg-blue-700,
+.silva-panel main .hover\:bg-brand-700:hover,
+.silva-panel main .hover\:bg-blue-800:hover {
+  background-color: var(--silva-cocoa);
+}
+
+.silva-panel main .text-brand-600,
+.silva-panel main .text-blue-700 {
+  color: var(--silva-cocoa);
+}
+
+.silva-panel main .bg-blue-50 {
+  background-color: #f8eee6;
+}
+
+.silva-panel main table {
+  font-size: .9rem;
+}
+
+.silva-panel main table thead {
+  background-color: #f7efe8;
+  color: #5d6471;
+}
+
+.silva-panel main table th {
+  padding-top: .9rem;
+  padding-bottom: .9rem;
+}
+
+.silva-panel main table tbody tr:hover {
+  background-color: #fcf8f4;
+}
+
+.silva-panel main table td {
+  padding-top: .9rem;
+  padding-bottom: .9rem;
+}
+
+.silva-panel main > div > .bg-white:has(select),
+.silva-panel main > div > .bg-white:has(input[type="text"]) {
+  border-color: var(--silva-border);
+}
+
+.silva-panel main .fixed > .bg-white {
+  border: 1px solid var(--silva-border);
+  border-top: 4px solid var(--silva-copper);
+}
+
+.silva-panel .silva-empty-state {
+  display: flex;
+  min-height: 16rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .65rem;
+  border-top: 1px solid var(--silva-border);
+  padding: 2rem;
+  text-align: center;
+  color: #8b4d31;
+}
+
+.silva-panel .silva-empty-state h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.silva-panel .silva-empty-state p {
+  max-width: 30rem;
+  font-size: .9rem;
+  color: #64748b;
+}
+
+.silva-panel .silva-empty-state button {
+  margin-top: .5rem;
+  border-radius: .65rem;
+  background: #8b4d31;
+  padding: .65rem 1rem;
+  color: white;
+  font-size: .875rem;
+  font-weight: 700;
+}
+
+.silva-panel .silva-stat-card {
+  min-height: 7.5rem;
+  border-color: var(--silva-border);
+  background: #fffefd;
+}
+
+.silva-panel .silva-summary-card {
+  min-height: 7.5rem;
+  border-color: var(--silva-border);
+  background: #fffefd;
+}
+
+.silva-panel .silva-summary-icon { color: #8b4d31; background: #f6e9df; }
+.silva-panel .silva-summary-card[data-tone="green"] .silva-summary-icon { color: #246a49; background: #eaf5ee; }
+.silva-panel .silva-summary-card[data-tone="amber"] .silva-summary-icon { color: #9a641a; background: #fff4df; }
+.silva-panel .silva-summary-card[data-tone="navy"] .silva-summary-icon { color: #264468; background: #eaf0f7; }
+
+.silva-panel .silva-stat-icon {
+  color: #8b4d31;
+  background: #f6e9df;
+}
+
+.silva-panel .silva-stat-card[data-tone="green"] { border-top-color: #3e8261; }
+.silva-panel .silva-stat-card[data-tone="green"] .silva-stat-icon { color: #246a49; background: #eaf5ee; }
+.silva-panel .silva-stat-card[data-tone="amber"] { border-top-color: #d29a43; }
+.silva-panel .silva-stat-card[data-tone="amber"] .silva-stat-icon { color: #9a641a; background: #fff4df; }
+.silva-panel .silva-stat-card[data-tone="navy"] { border-top-color: #304e74; }
+.silva-panel .silva-stat-card[data-tone="navy"] .silva-stat-icon { color: #264468; background: #eaf0f7; }
+
+.silva-panel main :is(input, select, textarea) {
+  min-height: 2.5rem;
+}
+
+.silva-panel :is(button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--silva-copper);
+  outline-offset: 2px;
+}
+
+@media (max-width: 1023px) {
+  .silva-panel .silva-sidebar nav:not(.hidden) {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: .25rem;
+  }
+}
+
+@media print {
+  @page { size: A4; margin: 12mm; }
+  body * { visibility: hidden !important; }
+  body:has(#invoice-design-print) { overflow: visible !important; }
+  body:has(#invoice-design-print) #root, body:has(#invoice-design-print) #root * { overflow: visible !important; max-height: none !important; }
+  #invoice-design-print, #invoice-design-print * { visibility: visible !important; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  #invoice-design-print { position: absolute !important; top: 0 !important; left: 0 !important; min-width: 0 !important; width: 100% !important; font-size: 10pt; }
+  #invoice-design-print tr { break-inside: avoid; }
+}
